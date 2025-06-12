@@ -14,8 +14,6 @@ ImmoChain est une application décentralisée (DApp) de bout en bout conçue pou
   - [2. IPFS (Nœud de Stockage Local)](#2-ipfs-nœud-de-stockage-local)
   - [3. Frontend (Application React)](#3-frontend-application-react)
 - [Utilisation de la DApp](#utilisation-de-la-dapp)
-- [Auteur](#auteur)
-- [Licence](#licence)
 
 ## Aperçu du Projet
 
@@ -116,7 +114,7 @@ Détaillé dans `frontend/README.md` (ou `d_frontend/README.md`). Étapes princi
 
 1.  **Naviguer vers le dossier frontend :**
     ```bash
-    cd frontend # ou cd d_frontend
+    cd d_frontend
     ```
 2.  **Installer les dépendances :**
     ```bash
