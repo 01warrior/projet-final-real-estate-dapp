@@ -3,8 +3,8 @@ import { ethers, isAddress } from 'ethers';
 import { create } from 'ipfs-http-client';
 
 // Artefact et config
-import PropertyRegistryArtifact from './contracts/PropertyRegistry.json'; // Assure-toi que ce chemin est correct
-import { PROPERTY_REGISTRY_CONTRACT_ADDRESS, IPFS_API_URL, IPFS_GATEWAY_URL } from './config'; // Assure-toi que ce chemin est correct
+import PropertyRegistryArtifact from './contracts/PropertyRegistry.json';
+import { PROPERTY_REGISTRY_CONTRACT_ADDRESS, IPFS_API_URL, IPFS_GATEWAY_URL } from './config'; 
 
 // Composants de Layout
 import Sidebar from './components/layout/Sidebar.jsx';
@@ -22,7 +22,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  // DialogTrigger, // On l'utilisera dans les sous-composants si besoin
+  // DialogTrigger, // On l'utilisera apres
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -39,8 +39,6 @@ import { toast } from "sonner";
 
 function App() {
   const [account, setAccount] = useState(null);
-  // const [provider, setProvider] = useState(null); // Moins nécessaire si signer est utilisé pour créer le contrat
-  // const [signer, setSigner] = useState(null);   // Moins nécessaire si le contrat est déjà avec le signer
   const [contract, setContract] = useState(null);
   const [ipfs, setIpfs] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -89,7 +87,7 @@ function App() {
           const p = await contractInstance.getProperty(i);
           loadedProps.push({
             id: Number(p.id), currentOwner: p.currentOwner, ipfsHash: p.ipfsHash, description: p.description,
-            previousOwnersHistory: p.previousOwnersHistory // On peut le récupérer ici si on veut
+            previousOwnersHistory: p.previousOwnersHistor
           });
         } catch (loopError) { console.error(`Erreur chargement prop ID ${i}:`, loopError); }
       }
@@ -196,7 +194,7 @@ function App() {
       console.log("Client IPFS initialisé.");
     } catch (error) {
       console.error("Erreur d'initialisation IPFS:", error);
-      //toast({ title: "Erreur IPFS", description: "Connexion au nœud IPFS local échouée.", variant: "destructive" });
+    
     }
   }, [toast]);
 
@@ -207,13 +205,12 @@ function App() {
           setAccount(null); setContract(null); setIsAdmin(false); setProperties([]);
           //toast({ title: "Portefeuille Déconnecté", variant: "warning" });
         } else if (account && accounts[0].toLowerCase() !== account.toLowerCase()) {
-          //toast({ title: "Compte Changé", description: "Reconnexion avec le nouveau compte...", variant: "info" });
-          // Forcer une réinitialisation complète pour re-vérifier l'admin et recharger les données
-          window.location.reload();
+          
+          window.location.reload(); // Forcer une réinitialisation complète pour re-vérifier l'admin et recharger les données
         }
       };
       const handleChainChanged = () => {
-        //toast({ title: "Réseau Changé", description: "La page va se recharger.", variant: "info" });
+       
         window.location.reload();
       };
       window.ethereum.on('accountsChanged', handleAccountsChanged);
@@ -223,7 +220,7 @@ function App() {
         window.ethereum.removeListener('chainChanged', handleChainChanged);
       };
     }
-  }, [account, toast]); // connectWallet a été retiré car reload gère le cas
+  }, [account, toast]); 
 
   useEffect(() => {
     if (contract) {
@@ -244,20 +241,20 @@ function App() {
   const handleAddPropertySubmit = useCallback(async (e) => {
     e.preventDefault();
     if (!contract || !ipfs) {
-      //toast({ title: "Erreur", description: "Contrat ou IPFS non initialisé.", variant: "destructive" }); return;
+   
     }
     if (!isAddress(newPropertyOwner)) {
-      //toast({ title: "Validation", description: "L'adresse du propriétaire est invalide.", variant: "destructive" }); return;
+      
     }
     if (!newPropertyDescription.trim()) {
-      //toast({ title: "Validation", description: "La description est requise.", variant: "destructive" }); return;
+     
     }
     if (propertyFiles.length === 0) {
-      //toast({ title: "Validation", description: "Veuillez sélectionner au moins un document.", variant: "destructive" }); return;
+      
     }
 
     setIsAddingProperty(true);
-    //toast({ title: "Ajout en Cours...", description: "Upload sur IPFS et enregistrement blockchain...", variant: "info", duration: 10000 });
+   
     try {
       const filesToIpfs = propertyFiles.map(file => ({ path: file.name, content: file }));
       let directoryCid = '';
@@ -276,7 +273,7 @@ function App() {
     } catch (error) {
       console.error("Erreur lors de l'ajout:", error);
       const reason = error.reason || error.message || "Erreur inconnue.";
-      //toast({ title: "Erreur d'Ajout", description: reason, variant: "destructive" });
+     
     } finally {
       setIsAddingProperty(false);
     }
@@ -291,18 +288,18 @@ function App() {
   const handleTransferSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (!contract || !transferTargetProperty) {
-      //toast({ title: "Erreur", description: "Données de transfert manquantes.", variant: "destructive" }); return;
+     
     }
     if (!isAddress(newOwnerAddressInput)) {
-      //toast({ title: "Validation", description: "L'adresse du nouveau propriétaire est invalide.", variant: "destructive" }); return;
+     
     }
 
     setIsTransferring(true);
-    //toast({ title: "Transfert en Cours...", description: `Prop. ID ${transferTargetProperty.id} vers ${newOwnerAddressInput.substring(0, 6)}...`, variant: "info", duration: 10000 });
+    
     try {
       const tx = await contract.transferProperty(transferTargetProperty.id, newOwnerAddressInput);
       await tx.wait();
-      //toast({ title: "Succès!", description: `Propriété ID ${transferTargetProperty.id} transférée!`, variant: "success" });
+     
       setIsTransferDialogOpen(false);
       setNewOwnerAddressInput('');
       setTransferTargetProperty(null);
@@ -310,7 +307,7 @@ function App() {
     } catch (error) {
       console.error("Erreur lors du transfert:", error);
       const reason = error.reason || error.message || "Erreur inconnue.";
-      //toast({ title: "Erreur de Transfert", description: reason, variant: "destructive" });
+     
     } finally {
       setIsTransferring(false);
     }
@@ -318,16 +315,15 @@ function App() {
 
   const openPropertyHistoryDialog = useCallback(async (propertyId) => {
     if (!contract) {
-        //toast({ title: "Erreur Contrat", description: "Le contrat n'est pas initialisé.", variant: "destructive" }); return;
+       
     }
-    // Si on clique et que la modale est déjà ouverte pour cet ID, on ne fait rien (ou on la ferme, On verra si on veut la fermer ou pas)
-    // if (historyTargetId === propertyId && isHistoryDialogOpen) return;
+
 
 
     setIsLoadingHistory(true);
     setHistoryTargetId(propertyId); // Pour savoir quelle propriété est concernée
     setPropertyHistory([]); // Vide l'ancien
-    //toast({ title: "Chargement...", description: `Historique pour propriété ID ${propertyId}.`, variant: "info", duration: 2000});
+   
     try {
         const historyArray = await contract.getPropertyHistory(propertyId);
         setPropertyHistory(historyArray);
@@ -335,7 +331,7 @@ function App() {
     } catch (error) {
         console.error("Erreur chargement historique:", error);
         const reason = error.reason || "Erreur inconnue.";
-        //toast({ title: "Erreur Historique", description: reason, variant: "destructive" });
+      
         setHistoryTargetId(null);
     } finally {
         setIsLoadingHistory(false);
@@ -409,7 +405,7 @@ function App() {
                 <Card className="shadow-md">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Mes Propriétés</CardTitle>
-                    <HomeIcon className="h-4 w-4 text-muted-foreground" /> {/* Ajoute HomeIcon de lucide-react */}
+                    <HomeIcon className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
@@ -453,7 +449,7 @@ function App() {
                               <PlusCircle className="mr-2 h-4 w-4" /> Ajouter une Propriété
                           </Button>
                       )}
-                      {/* Tu peux ajouter un bouton "Mes Propriétés" qui filtre la vue 'properties' */}
+                   
                   </div>
               </div>
 
@@ -581,14 +577,14 @@ function App() {
 
       {/* Modale pour Afficher les Documents IPFS */}
       <Dialog open={isIpfsDocsDialogOpen} onOpenChange={setIsIpfsDocsDialogOpen}>
-          <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl"> {/* Ajuste la taille si besoin */}
+          <DialogContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl"> 
               <DialogHeader>
                   <DialogTitle>Documents de la Propriété (IPFS)</DialogTitle>
                   <DialogDescription>
                       CID du dossier : <code className="text-xs bg-slate-100 dark:bg-slate-700 p-1 rounded font-mono">{currentIpfsFolderCid}</code>
                   </DialogDescription>
               </DialogHeader>
-              <div className="py-4 max-h-[60vh] overflow-y-auto"> {/* Pour le scroll si beaucoup de fichiers */}
+              <div className="py-4 max-h-[60vh] overflow-y-auto">
                   {isLoadingIpfsFolder && <p>Chargement du contenu du dossier IPFS...</p>}
                   {!isLoadingIpfsFolder && ipfsFolderContents.length === 0 && (
                       <p className="text-slate-500 dark:text-slate-400">Aucun fichier trouvé dans ce dossier IPFS ou dossier inaccessible.</p>
